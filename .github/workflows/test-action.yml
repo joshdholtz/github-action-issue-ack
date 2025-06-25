@@ -9,6 +9,9 @@ on:
 jobs:
   test-notifications:
     runs-on: ubuntu-latest
+    permissions:
+      issues: read
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +30,8 @@ jobs:
 
       - name: Issue Notification Action
         uses: ./
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           # Test with Discord webhook (set this secret if you want to test)
           discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
