@@ -30,6 +30,12 @@ class IssueNotificationAction {
     this.messageTemplate = core.getInput("message_template");
     this.notifyOnCreate = core.getInput("notify_on_create") === "true";
     this.notifyOnThreshold = core.getInput("notify_on_threshold") === "true";
+
+    // Batch checking configuration
+    this.checkAllOpenIssues = core.getInput("check_all_open_issues") === "true";
+    this.maxIssuesToCheck =
+      parseInt(core.getInput("max_issues_to_check")) || 100;
+    this.issueState = core.getInput("issue_state") || "open"; // open, closed, all
   }
 
   async run() {
@@ -43,6 +49,8 @@ class IssueNotificationAction {
         await this.handleIssueEvent(payload);
       } else if (eventName === "issue_comment") {
         await this.handleIssueCommentEvent(payload);
+      } else if (eventName === "schedule" || this.checkAllOpenIssues) {
+        await this.handleBatchCheckEvent();
       } else {
         core.info(`Event ${eventName} is not supported`);
       }
@@ -79,6 +87,77 @@ class IssueNotificationAction {
         await this.sendNotification(updatedIssue, "threshold_reached");
       }
     }
+  }
+
+  async handleBatchCheckEvent() {
+    if (!this.notifyOnThreshold) {
+      core.info("Batch checking disabled - notify_on_threshold is false");
+      return;
+    }
+
+    core.info("Starting batch check for issues that meet thresholds...");
+
+    try {
+      const issues = await this.getAllIssues();
+      core.info(`Found ${issues.length} issues to check`);
+
+      let notifiedCount = 0;
+      for (const issue of issues) {
+        if (this.shouldNotifyForThresholds(issue)) {
+          await this.sendNotification(issue, "threshold_reached");
+          notifiedCount++;
+        }
+      }
+
+      core.info(
+        `Batch check complete: ${notifiedCount} issues met thresholds and were notified`
+      );
+    } catch (error) {
+      core.error(`Batch check failed: ${error.message}`);
+    }
+  }
+
+  async getAllIssues() {
+    const issues = [];
+    let page = 1;
+    const perPage = Math.min(100, this.maxIssuesToCheck);
+
+    while (issues.length < this.maxIssuesToCheck) {
+      try {
+        const { data: pageIssues } = await this.octokit.rest.issues.listForRepo(
+          {
+            owner: this.context.repo.owner,
+            repo: this.context.repo.repo,
+            state: this.issueState,
+            per_page: perPage,
+            page: page,
+            sort: "updated",
+            direction: "desc",
+          }
+        );
+
+        if (pageIssues.length === 0) {
+          break; // No more issues
+        }
+
+        // Get full issue details including reactions
+        for (const issue of pageIssues) {
+          if (issues.length >= this.maxIssuesToCheck) {
+            break;
+          }
+
+          const fullIssue = await this.getIssueWithDetails(issue.number);
+          issues.push(fullIssue);
+        }
+
+        page++;
+      } catch (error) {
+        core.error(`Failed to fetch issues page ${page}: ${error.message}`);
+        break;
+      }
+    }
+
+    return issues;
   }
 
   shouldNotifyForIssue(issue) {

@@ -50,6 +50,20 @@ inputs:
     required: false
     default: "true"
 
+  # Batch checking configuration
+  check_all_open_issues:
+    description: "Check all open issues for thresholds when action runs (useful for catching reactions)"
+    required: false
+    default: "false"
+  max_issues_to_check:
+    description: "Maximum number of issues to check during batch processing"
+    required: false
+    default: "100"
+  issue_state:
+    description: "Which issues to check during batch processing (open, closed, all)"
+    required: false
+    default: "open"
+
 runs:
   using: "node20"
   main: "dist/index.js"

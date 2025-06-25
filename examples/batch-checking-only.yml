@@ -1,0 +1,32 @@
+name: Batch Check Only - Check All Issues
+
+on:
+  # Run every 30 minutes
+  schedule:
+    - cron: "*/30 * * * *"
+
+jobs:
+  check-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Issue Notification Action
+        uses: ./
+        with:
+          # Webhook configuration
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+          # Only check for thresholds (no real-time notifications)
+          notify_on_create: "false"
+          notify_on_threshold: "true"
+
+          # Batch checking configuration
+          check_all_open_issues: "true"
+          max_issues_to_check: "100"
+          issue_state: "open"
+
+          # Thresholds
+          reaction_threshold: "3"
+          comment_threshold: "2"

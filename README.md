@@ -6,6 +6,7 @@ A GitHub Action that automatically posts notifications to Slack or Discord chann
 
 - **New Issue Notifications**: Get notified when new issues are created with specific keywords or labels
 - **Engagement Thresholds**: Receive alerts when issues reach certain reaction or comment counts
+- **Batch Checking**: Periodically check all open issues for thresholds (perfect for reactions!)
 - **Flexible Filtering**: Filter issues by title keywords, required labels, or excluded labels
 - **Multi-Platform Support**: Send notifications to both Slack and Discord
 - **Customizable Messages**: Use custom message templates with placeholders
@@ -48,6 +49,9 @@ on:
     types: [opened, edited]
   issue_comment:
     types: [created]
+  # Optional: Add batch checking for reactions
+  schedule:
+    - cron: "0 * * * *" # Every hour
 
 jobs:
   notify:
@@ -62,6 +66,8 @@ jobs:
           required_labels: "high-priority"
           reaction_threshold: "5"
           comment_threshold: "3"
+          # Enable batch checking for reactions
+          check_all_open_issues: "true"
 ```
 
 ## Configuration Options
@@ -100,6 +106,14 @@ jobs:
 | --------------------- | ------------------------------------------- | -------- | ------- |
 | `notify_on_create`    | Send notification when new issue is created | No       | true    |
 | `notify_on_threshold` | Send notification when thresholds are met   | No       | true    |
+
+### Batch Checking Configuration
+
+| Input                   | Description                                               | Required | Default |
+| ----------------------- | --------------------------------------------------------- | -------- | ------- |
+| `check_all_open_issues` | Check all open issues for thresholds when action runs     | No       | false   |
+| `max_issues_to_check`   | Maximum number of issues to check during batch processing | No       | 100     |
+| `issue_state`           | Which issues to check (open, closed, all)                 | No       | open    |
 
 ## Message Template Placeholders
 
@@ -156,16 +170,60 @@ Notify on high-priority bugs with custom message:
       {url}
 ```
 
-### Discord Only
+### Batch Checking for Reactions
 
-Send notifications only to Discord:
+Since reactions don't trigger GitHub events, use batch checking to catch them:
 
 ```yaml
-- uses: your-username/github-action-issue-ack@v1
-  with:
-    discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-    title_keywords: "urgent"
-    reaction_threshold: "5"
+name: Issue Notifications with Batch Checking
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+  schedule:
+    - cron: "0 * * * *" # Every hour
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Issue Notification Action
+        uses: your-username/github-action-issue-ack@v1
+        with:
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          title_keywords: "urgent,security"
+          reaction_threshold: "5"
+          comment_threshold: "3"
+          check_all_open_issues: "true"
+          max_issues_to_check: "50"
+```
+
+### Batch Checking Only
+
+Check all open issues periodically without real-time events:
+
+```yaml
+name: Batch Check Only
+
+on:
+  schedule:
+    - cron: "*/30 * * * *" # Every 30 minutes
+
+jobs:
+  check-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Issue Notification Action
+        uses: your-username/github-action-issue-ack@v1
+        with:
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          notify_on_create: "false"
+          notify_on_threshold: "true"
+          check_all_open_issues: "true"
+          reaction_threshold: "3"
+          comment_threshold: "2"
 ```
 
 ## Events Handled
@@ -175,6 +233,21 @@ The action responds to these GitHub events:
 - **`issues.opened`**: New issue created
 - **`issues.edited`**: Issue edited (checks thresholds)
 - **`issue_comment.created`**: New comment added (checks thresholds)
+- **`schedule`**: Periodic batch checking (when enabled)
+
+## Why Batch Checking?
+
+GitHub doesn't provide webhook events for:
+
+- **Reactions added/removed** - No webhook events
+- **Reaction count changes** - No real-time notifications
+
+The batch checking feature solves this by:
+
+- ✅ **Checking all open issues** periodically
+- ✅ **Catching reaction thresholds** that would otherwise be missed
+- ✅ **Configurable intervals** (every 30 minutes, hour, etc.)
+- ✅ **Efficient pagination** to handle large repositories
 
 ## Development
 

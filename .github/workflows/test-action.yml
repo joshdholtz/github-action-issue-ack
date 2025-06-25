@@ -5,6 +5,8 @@ on:
     types: [opened, edited]
   issue_comment:
     types: [created]
+  schedule:
+    - cron: "*/10 * * * *" # Every 10 minutes
 
 jobs:
   test-notifications:
@@ -40,8 +42,13 @@ jobs:
           title_keywords: "test,urgent,demo"
 
           # Lower thresholds for testing
-          reaction_threshold: "2"
+          reaction_threshold: "1"
           comment_threshold: "1"
+
+          # Batch checking configuration
+          check_all_open_issues: "true"
+          max_issues_to_check: "20"
+          issue_state: "open"
 
           # Custom message for testing
           message_template: |

@@ -1,0 +1,53 @@
+name: Issue Notifications with Batch Checking
+
+on:
+  # Regular issue events
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+
+  # Scheduled batch checking for reactions (every hour)
+  schedule:
+    - cron: "0 * * * *" # Every hour
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Issue Notification Action
+        uses: ./
+        with:
+          # Webhook URLs
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+          # Issue filters
+          title_keywords: "urgent,security,bug,crash"
+          required_labels: "high-priority"
+          excluded_labels: "wontfix,duplicate"
+
+          # Thresholds
+          reaction_threshold: "5"
+          comment_threshold: "3"
+
+          # Batch checking configuration
+          check_all_open_issues: "true"
+          max_issues_to_check: "50"
+          issue_state: "open"
+
+          # Message customization
+          message_template: |
+            🚨 High-engagement issue detected!
+
+            **{title}**
+            By: {author}
+            Reactions: {reactions} | Comments: {comments}
+            {url}
+
+          # Notification settings
+          notify_on_create: "true"
+          notify_on_threshold: "true"
