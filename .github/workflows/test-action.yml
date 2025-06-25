@@ -1,0 +1,42 @@
+name: Test Issue Notifications
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+
+jobs:
+  test-notifications:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Issue Notification Action
+        uses: ./
+        with:
+          # Test with Discord webhook (set this secret if you want to test)
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+          # Test filters - notify on issues with "test" or "urgent" in title
+          title_keywords: "test,urgent,demo"
+
+          # Lower thresholds for testing
+          reaction_threshold: "2"
+          comment_threshold: "1"
+
+          # Custom message for testing
+          message_template: |
+            🧪 Test Notification!
+
+            **{title}**
+            By: {author}
+            Reactions: {reactions} | Comments: {comments}
+            {url}
+
+            _This is a test notification from the action itself!_
+
+          # Enable both notification types
+          notify_on_create: "true"
+          notify_on_threshold: "true"
