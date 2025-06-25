@@ -42,6 +42,8 @@ jobs:
           # Test filters - notify on issues with "test" or "urgent" in title
           title_keywords: "test,urgent,demo"
 
+          excluded_labels: "acknowledged"
+
           # Lower thresholds for testing
           reaction_threshold: "1"
           comment_threshold: "1"

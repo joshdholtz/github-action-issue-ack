@@ -63,7 +63,7 @@ jobs:
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
           discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           title_keywords: "urgent,security,bug"
-          required_labels: "high-priority"
+          excluded_labels: "acknowledged"
           reaction_threshold: "5"
           comment_threshold: "3"
           # Enable batch checking for reactions
