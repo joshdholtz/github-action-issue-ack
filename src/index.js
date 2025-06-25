@@ -103,7 +103,11 @@ class IssueNotificationAction {
 
       let notifiedCount = 0;
       for (const issue of issues) {
-        if (this.shouldNotifyForThresholds(issue)) {
+        // Apply all filters (keywords, labels, excluded labels) AND thresholds
+        if (
+          this.shouldNotifyForIssue(issue) &&
+          this.shouldNotifyForThresholds(issue)
+        ) {
           await this.sendNotification(issue, "threshold_reached");
           notifiedCount++;
         }
