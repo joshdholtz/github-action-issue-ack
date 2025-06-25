@@ -1,0 +1,120 @@
+name: 🐛 Bug report
+description: Report a bug with the GitHub Action
+title: ""
+labels: ["bug"]
+assignees: []
+
+body:
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: Type of Issue
+      description: Select the category that best describes the issue.
+      options:
+        - Action not triggering
+        - Notification not sent
+        - Filter not working
+        - Configuration error
+        - Other Bug
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preliminary Checks
+      description: Please confirm you've completed the following before filing the issue.
+      options:
+        - label: I have updated to the latest version of the action
+        - label: I have read the [README documentation](https://github.com/your-username/github-action-issue-ack#readme)
+        - label: I have checked the [webhook setup guide](https://github.com/your-username/github-action-issue-ack/blob/main/docs/webhook-setup.md)
+        - label: I have searched for [existing GitHub issues](https://github.com/your-username/github-action-issue-ack/issues)
+        - label: I have tested my webhook URLs manually
+
+  - type: textarea
+    id: describe_bug
+    attributes:
+      label: Describe the Bug
+      description: |
+        A clear and concise description of what the bug is. The more detail you can provide, the faster we can triage and resolve the issue.
+        Do not remove any sections from the template below. If a step is not applicable, leave it empty.
+      placeholder: |
+        1. Environment
+           1. GitHub Action version:
+           2. Repository type (public/private):
+           3. Webhook platform:
+              - [ ] Slack
+              - [ ] Discord
+              - [ ] Both
+           4. GitHub event that triggered the action:
+           5. Issue details (if applicable):
+              - Issue title:
+              - Issue labels:
+              - Number of reactions:
+              - Number of comments:
+           6. How widespread is the issue. Percentage of repositories affected.
+
+  - type: textarea
+    id: workflow_config
+    attributes:
+      label: Workflow Configuration
+      description: |
+        Please share your workflow configuration (with sensitive information redacted).
+      render: yaml
+      placeholder: |
+        ```yaml
+        name: Issue Notifications
+        on:
+          issues:
+            types: [opened, edited]
+          issue_comment:
+            types: [created]
+
+        jobs:
+          notify:
+            runs-on: ubuntu-latest
+            steps:
+              - name: Issue Notification Action
+                uses: your-username/github-action-issue-ack@v1
+                with:
+                  slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+                  title_keywords: "urgent,security"
+                  reaction_threshold: "5"
+                  comment_threshold: "3"
+        ```
+
+  - type: textarea
+    id: action_logs
+    attributes:
+      label: Action Logs
+      description: |
+        Add the GitHub Actions logs that show the error or unexpected behavior. You can find these in the Actions tab of your repository.
+      render: shell
+      placeholder: |
+        Action logs here (from the "Issue Notification Action" step)
+
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        Please provide steps to reproduce the issue, along with the expected vs. actual behavior.
+      placeholder: |
+        1. Set up the action with the following configuration...
+        2. Create an issue with the following criteria...
+        3. Expected: Notification should be sent to Slack/Discord
+        4. Actual: [What actually happened]
+
+  - type: textarea
+    id: other_info
+    attributes:
+      label: Other Information
+      description: |
+        Add any other information such as error messages, related issues, suggestions, or helpful links.
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: |
+        Add any additional context about the problem here.
