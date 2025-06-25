@@ -1,0 +1,59 @@
+name: "Issue Notification Action"
+description: "Post notifications to Slack or Discord when GitHub issues meet certain criteria"
+author: "Your Name"
+inputs:
+  # Webhook configuration
+  slack_webhook_url:
+    description: "Slack webhook URL for posting messages"
+    required: false
+  discord_webhook_url:
+    description: "Discord webhook URL for posting messages"
+    required: false
+
+  # Issue filters
+  title_keywords:
+    description: "Comma-separated keywords to filter issues by title"
+    required: false
+    default: ""
+  required_labels:
+    description: "Comma-separated labels that must be present on the issue"
+    required: false
+    default: ""
+  excluded_labels:
+    description: "Comma-separated labels that should exclude the issue"
+    required: false
+    default: ""
+
+  # Thresholds
+  reaction_threshold:
+    description: "Minimum number of reactions required to trigger notification"
+    required: false
+    default: "5"
+  comment_threshold:
+    description: "Minimum number of comments required to trigger notification"
+    required: false
+    default: "3"
+
+  # Message customization
+  message_template:
+    description: "Custom message template. Use {title}, {url}, {author}, {reactions}, {comments} as placeholders"
+    required: false
+    default: '🚨 High-engagement issue detected!\n\n**{title}**\nBy: {author}\nReactions: {reactions} | Comments: {comments}\n{url}'
+
+  # Notification settings
+  notify_on_create:
+    description: "Send notification when new issue is created (if it matches filters)"
+    required: false
+    default: "true"
+  notify_on_threshold:
+    description: "Send notification when issue reaches reaction/comment thresholds"
+    required: false
+    default: "true"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
+
+branding:
+  icon: "bell"
+  color: "blue"

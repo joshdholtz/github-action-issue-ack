@@ -1,0 +1,43 @@
+name: Issue Notifications
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Issue Notification Action
+        uses: ./
+        with:
+          # Webhook URLs (set these as repository secrets)
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+          # Issue filters
+          title_keywords: "bug,crash,error,urgent,security"
+          required_labels: "high-priority,needs-attention"
+          excluded_labels: "wontfix,duplicate"
+
+          # Thresholds
+          reaction_threshold: "5"
+          comment_threshold: "3"
+
+          # Message customization
+          message_template: |
+            🚨 High-engagement issue detected!
+
+            **{title}**
+            By: {author}
+            Reactions: {reactions} | Comments: {comments}
+            {url}
+
+          # Notification settings
+          notify_on_create: "true"
+          notify_on_threshold: "true"

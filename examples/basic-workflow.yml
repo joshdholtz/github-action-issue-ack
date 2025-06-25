@@ -1,0 +1,19 @@
+name: Basic Issue Notifications
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Issue Notification Action
+        uses: your-username/github-action-issue-ack@v1
+        with:
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          title_keywords: "urgent,security,bug"
+          reaction_threshold: "3"
+          comment_threshold: "2"
