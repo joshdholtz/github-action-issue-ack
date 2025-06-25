@@ -1,6 +1,7 @@
 name: Test Issue Notifications
 
 on:
+  workflow_dispatch: # Manual trigger
   issues:
     types: [opened, edited]
   issue_comment:
