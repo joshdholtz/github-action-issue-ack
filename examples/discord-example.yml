@@ -1,0 +1,9 @@
+message_template: |
+  🚨 High-engagement issue detected!
+
+  **{title}**
+  By: {author}
+  Reactions: {reactions} | Comments: {comments}
+  Repository: {repo_link}
+  Created: {created_ago}
+  {url}

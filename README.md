@@ -129,6 +129,11 @@ You can customize the notification message using these placeholders:
 - `{repo}` - Repository name (owner/repo)
 - `{repo_url}` - Repository URL
 - `{repo_link}` - Repository name as hyperlink [repo](url)
+- `{created_minutes_ago}` - Minutes since issue was created
+- `{created_hours_ago}` - Hours since issue was created
+- `{created_days_ago}` - Days since issue was created
+- `{created_at}` - Original creation timestamp
+- `{created_ago}` - Smart time format (e.g., "2 hours ago", "3 days ago")
 
 ### Default Message Template
 
@@ -139,6 +144,7 @@ You can customize the notification message using these placeholders:
 By: {author}
 Reactions: {reactions} | Comments: {comments}
 Repository: {repo_link}
+Created: {created_hours_ago} hours ago
 {url}
 ```
 
@@ -249,9 +255,26 @@ You can customize the notification messages using placeholders:
       **{title}**
       Reported by: {author}
       Engagement: {reactions} reactions, {comments} comments
+      Age: {created_days_ago} days, {created_hours_ago} hours old
       {url}
     new_issue_prefix: "🆕 New bug reported on {repo_link}!"
     threshold_prefix: "🚨 High-engagement bug on {repo_link}!"
+```
+
+### Time-Based Examples
+
+```yaml
+# Show age in different formats
+message_template: |
+  **{title}**
+  Created: {created_minutes_ago} minutes ago
+  Age: {created_hours_ago} hours, {created_days_ago} days
+  {url}
+
+# Only show if issue is older than 1 hour
+message_template: |
+  **{title}** ({created_hours_ago}h old)
+  {url}
 ```
 
 ## Events Handled

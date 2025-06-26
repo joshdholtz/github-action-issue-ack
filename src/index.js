@@ -249,6 +249,26 @@ class IssueNotificationAction {
     const repoName = `${this.context.repo.owner}/${this.context.repo.repo}`;
     const repoUrl = `https://github.com/${repoName}`;
 
+    // Calculate time since issue was created
+    const createdAt = new Date(issue.created_at);
+    const now = new Date();
+    const timeDiff = now - createdAt;
+    const minutesAgo = Math.floor(timeDiff / (1000 * 60));
+    const hoursAgo = Math.floor(timeDiff / (1000 * 60 * 60));
+    const daysAgo = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+    // Smart time formatting
+    let createdAgo;
+    if (daysAgo > 0) {
+      createdAgo = `${daysAgo} day${daysAgo === 1 ? "" : "s"} ago`;
+    } else if (hoursAgo > 0) {
+      createdAgo = `${hoursAgo} hour${hoursAgo === 1 ? "" : "s"} ago`;
+    } else if (minutesAgo > 0) {
+      createdAgo = `${minutesAgo} minute${minutesAgo === 1 ? "" : "s"} ago`;
+    } else {
+      createdAgo = "just now";
+    }
+
     let message = this.messageTemplate
       .replace("{title}", issue.title)
       .replace("{url}", issue.html_url)
@@ -257,7 +277,12 @@ class IssueNotificationAction {
       .replace("{comments}", commentCount)
       .replace("{repo}", repoName)
       .replace("{repo_url}", repoUrl)
-      .replace("{repo_link}", `[${repoName}](${repoUrl})`);
+      .replace("{repo_link}", `[${repoName}](${repoUrl})`)
+      .replace("{created_minutes_ago}", minutesAgo)
+      .replace("{created_hours_ago}", hoursAgo)
+      .replace("{created_days_ago}", daysAgo)
+      .replace("{created_at}", issue.created_at)
+      .replace("{created_ago}", createdAgo);
 
     if (reason === "created") {
       const prefix = this.newIssuePrefix
