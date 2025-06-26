@@ -29,6 +29,7 @@ jobs:
         run: npm run build
 
       - name: Create Release
+        id: release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
@@ -53,11 +54,3 @@ jobs:
           draft: false
           prerelease: false
           files: dist/index.js
-
-      - name: Publish to GitHub Marketplace
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./dist/index.js
-          asset_name: github-action-issue-ack-${{ github.ref_name }}.js
-          asset_content_type: application/javascript
