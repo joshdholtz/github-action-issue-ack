@@ -57,7 +57,7 @@ jobs:
           message_template: |
             🧪 Test Notification!
 
-            **{title}**
+            {repo_name} - **{title}**
             By: {author}
             Created: {created_ago}
             Reactions: {reactions} | Comments: {comments}

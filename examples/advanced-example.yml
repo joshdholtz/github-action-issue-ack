@@ -4,6 +4,6 @@ message_template: |
   **{title}**
   By: {author}
   Reactions: {reactions} | Comments: {comments}
-  Repository: {repo_link}
+  Repository: {repo_name} ({repo_link})
   Created: {created_ago}
   {url}

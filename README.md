@@ -127,6 +127,7 @@ You can customize the notification message using these placeholders:
 - `{reactions}` - Number of reactions
 - `{comments}` - Number of comments
 - `{repo}` - Repository name (owner/repo)
+- `{repo_name}` - Repository name only (without owner)
 - `{repo_url}` - Repository URL
 - `{repo_link}` - Repository name as hyperlink [repo](url)
 - `{created_minutes_ago}` - Minutes since issue was created

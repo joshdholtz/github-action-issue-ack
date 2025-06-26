@@ -276,6 +276,7 @@ class IssueNotificationAction {
       .replace("{reactions}", reactionCount)
       .replace("{comments}", commentCount)
       .replace("{repo}", repoName)
+      .replace("{repo_name}", this.context.repo.repo)
       .replace("{repo_url}", repoUrl)
       .replace("{repo_link}", `[${repoName}](${repoUrl})`)
       .replace("{created_minutes_ago}", minutesAgo)
@@ -287,12 +288,14 @@ class IssueNotificationAction {
     if (reason === "created") {
       const prefix = this.newIssuePrefix
         .replace("{repo}", repoName)
+        .replace("{repo_name}", this.context.repo.repo)
         .replace("{repo_url}", repoUrl)
         .replace("{repo_link}", `[${repoName}](${repoUrl})`);
       message = `${prefix}\n\n${message}`;
     } else if (reason === "threshold_reached") {
       const prefix = this.thresholdPrefix
         .replace("{repo}", repoName)
+        .replace("{repo_name}", this.context.repo.repo)
         .replace("{repo_url}", repoUrl)
         .replace("{repo_link}", `[${repoName}](${repoUrl})`);
       message = `${prefix}\n\n${message}`;
