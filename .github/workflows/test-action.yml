@@ -64,6 +64,10 @@ jobs:
 
             _This is a test notification from the action itself!_
 
+          # Custom prefixes for testing
+          new_issue_prefix: "🚨 New issue created on {repo_link}!"
+          threshold_prefix: "📈 High-engagement issue on {repo_link}!"
+
           # Enable both notification types
           notify_on_create: "true"
           notify_on_threshold: "true"

@@ -36,9 +36,17 @@ inputs:
 
   # Message customization
   message_template:
-    description: "Custom message template. Use {title}, {url}, {author}, {reactions}, {comments} as placeholders"
+    description: "Custom message template. Use {title}, {url}, {author}, {reactions}, {comments}, {repo}, {repo_url}, {repo_link} as placeholders"
     required: false
-    default: '🚨 High-engagement issue detected!\n\n**{title}**\nBy: {author}\nReactions: {reactions} | Comments: {comments}\n{url}'
+    default: '🚨 High-engagement issue detected!\n\n**{title}**\nBy: {author}\nReactions: {reactions} | Comments: {comments}\nRepository: {repo_link}\n{url}'
+  new_issue_prefix:
+    description: "Prefix for new issue notifications (use {repo_link} for repository link)"
+    required: false
+    default: "🆕 New issue created on {repo_link}!"
+  threshold_prefix:
+    description: "Prefix for threshold notifications (use {repo_link} for repository link)"
+    required: false
+    default: "🚨 High-engagement issue detected on {repo_link}!"
 
   # Notification settings
   notify_on_create:

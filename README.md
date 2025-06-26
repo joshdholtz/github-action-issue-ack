@@ -96,9 +96,11 @@ jobs:
 
 ### Message Customization
 
-| Input              | Description                               | Required | Default   |
-| ------------------ | ----------------------------------------- | -------- | --------- |
-| `message_template` | Custom message template with placeholders | No       | See below |
+| Input              | Description                               | Required | Default                                           |
+| ------------------ | ----------------------------------------- | -------- | ------------------------------------------------- |
+| `message_template` | Custom message template with placeholders | No       | See below                                         |
+| `new_issue_prefix` | Prefix for new issue notifications        | No       | 🆕 New issue created on {repo_link}!              |
+| `threshold_prefix` | Prefix for threshold notifications        | No       | 🚨 High-engagement issue detected on {repo_link}! |
 
 ### Notification Settings
 
@@ -124,6 +126,9 @@ You can customize the notification message using these placeholders:
 - `{author}` - Issue author username
 - `{reactions}` - Number of reactions
 - `{comments}` - Number of comments
+- `{repo}` - Repository name (owner/repo)
+- `{repo_url}` - Repository URL
+- `{repo_link}` - Repository name as hyperlink [repo](url)
 
 ### Default Message Template
 
@@ -133,6 +138,7 @@ You can customize the notification message using these placeholders:
 **{title}**
 By: {author}
 Reactions: {reactions} | Comments: {comments}
+Repository: {repo_link}
 {url}
 ```
 
@@ -224,6 +230,28 @@ jobs:
           check_all_open_issues: "true"
           reaction_threshold: "3"
           comment_threshold: "2"
+```
+
+### Custom Message Formatting
+
+You can customize the notification messages using placeholders:
+
+```yaml
+- uses: your-username/github-action-issue-ack@v1
+  with:
+    slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+    title_keywords: "bug,crash,error"
+    required_labels: "high-priority,needs-attention"
+    excluded_labels: "wontfix,duplicate"
+    message_template: |
+      🐛 Bug Alert!
+
+      **{title}**
+      Reported by: {author}
+      Engagement: {reactions} reactions, {comments} comments
+      {url}
+    new_issue_prefix: "🆕 New bug reported on {repo_link}!"
+    threshold_prefix: "🚨 High-engagement bug on {repo_link}!"
 ```
 
 ## Events Handled
