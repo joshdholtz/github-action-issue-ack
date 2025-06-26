@@ -34556,6 +34556,8 @@ class IssueNotificationAction {
     this.reactionThreshold = parseInt(core.getInput("reaction_threshold")) || 5;
     this.commentThreshold = parseInt(core.getInput("comment_threshold")) || 3;
     this.messageTemplate = core.getInput("message_template");
+    this.newIssuePrefix = core.getInput("new_issue_prefix");
+    this.thresholdPrefix = core.getInput("threshold_prefix");
     this.notifyOnCreate = core.getInput("notify_on_create") === "true";
     this.notifyOnThreshold = core.getInput("notify_on_threshold") === "true";
 
@@ -34772,18 +34774,56 @@ class IssueNotificationAction {
   formatMessage(issue, reason) {
     const reactionCount = issue.reactions?.total_count || 0;
     const commentCount = issue.comments || 0;
+    const repoName = `${this.context.repo.owner}/${this.context.repo.repo}`;
+    const repoUrl = `https://github.com/${repoName}`;
+
+    // Calculate time since issue was created
+    const createdAt = new Date(issue.created_at);
+    const now = new Date();
+    const timeDiff = now - createdAt;
+    const minutesAgo = Math.floor(timeDiff / (1000 * 60));
+    const hoursAgo = Math.floor(timeDiff / (1000 * 60 * 60));
+    const daysAgo = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+    // Smart time formatting
+    let createdAgo;
+    if (daysAgo > 0) {
+      createdAgo = `${daysAgo} day${daysAgo === 1 ? "" : "s"} ago`;
+    } else if (hoursAgo > 0) {
+      createdAgo = `${hoursAgo} hour${hoursAgo === 1 ? "" : "s"} ago`;
+    } else if (minutesAgo > 0) {
+      createdAgo = `${minutesAgo} minute${minutesAgo === 1 ? "" : "s"} ago`;
+    } else {
+      createdAgo = "just now";
+    }
 
     let message = this.messageTemplate
       .replace("{title}", issue.title)
       .replace("{url}", issue.html_url)
       .replace("{author}", issue.user.login)
       .replace("{reactions}", reactionCount)
-      .replace("{comments}", commentCount);
+      .replace("{comments}", commentCount)
+      .replace("{repo}", repoName)
+      .replace("{repo_url}", repoUrl)
+      .replace("{repo_link}", `[${repoName}](${repoUrl})`)
+      .replace("{created_minutes_ago}", minutesAgo)
+      .replace("{created_hours_ago}", hoursAgo)
+      .replace("{created_days_ago}", daysAgo)
+      .replace("{created_at}", issue.created_at)
+      .replace("{created_ago}", createdAgo);
 
     if (reason === "created") {
-      message = `🆕 New issue created!\n\n${message}`;
+      const prefix = this.newIssuePrefix
+        .replace("{repo}", repoName)
+        .replace("{repo_url}", repoUrl)
+        .replace("{repo_link}", `[${repoName}](${repoUrl})`);
+      message = `${prefix}\n\n${message}`;
     } else if (reason === "threshold_reached") {
-      message = `🚨 High-engagement issue detected!\n\n${message}`;
+      const prefix = this.thresholdPrefix
+        .replace("{repo}", repoName)
+        .replace("{repo_url}", repoUrl)
+        .replace("{repo_link}", `[${repoName}](${repoUrl})`);
+      message = `${prefix}\n\n${message}`;
     }
 
     return message;
