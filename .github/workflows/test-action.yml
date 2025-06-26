@@ -59,6 +59,7 @@ jobs:
 
             **{title}**
             By: {author}
+            Created: {created_ago}
             Reactions: {reactions} | Comments: {comments}
             {url}
 
