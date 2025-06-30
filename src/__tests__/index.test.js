@@ -209,4 +209,75 @@ describe("IssueNotificationAction", () => {
 
     expect(action.shouldNotifyForIssue(pullRequest)).toBe(false);
   });
+
+  test("should not notify for acknowledged issues", () => {
+    core.getInput.mockImplementation((name) => {
+      if (name === "excluded_labels") return "acknowledged";
+      return "";
+    });
+
+    const { IssueNotificationAction } = require("../index");
+    const action = new IssueNotificationAction();
+
+    const acknowledgedIssue = {
+      title: "This is an urgent security issue",
+      labels: [{ name: "acknowledged" }],
+      reactions: { total_count: 10 },
+      comments: 5,
+    };
+
+    expect(action.shouldNotifyForIssue(acknowledgedIssue)).toBe(false);
+  });
+
+  test("should notify for non-acknowledged issues", () => {
+    core.getInput.mockImplementation((name) => {
+      if (name === "excluded_labels") return "acknowledged";
+      return "";
+    });
+
+    const { IssueNotificationAction } = require("../index");
+    const action = new IssueNotificationAction();
+
+    const regularIssue = {
+      title: "This is an urgent security issue",
+      labels: [{ name: "bug" }],
+      reactions: { total_count: 10 },
+      comments: 5,
+    };
+
+    expect(action.shouldNotifyForIssue(regularIssue)).toBe(true);
+  });
+
+  test("should not send notification for acknowledged issues on comment events", async () => {
+    core.getInput.mockImplementation((name) => {
+      if (name === "excluded_labels") return "acknowledged";
+      if (name === "notify_on_threshold") return "true";
+      return "";
+    });
+
+    const { IssueNotificationAction } = require("../index");
+    const action = new IssueNotificationAction();
+
+    // Mock the sendNotification method to track calls
+    action.sendNotification = jest.fn();
+
+    // Mock getIssueWithDetails to return an acknowledged issue
+    action.getIssueWithDetails = jest.fn().mockResolvedValue({
+      number: 1,
+      title: "Test issue",
+      labels: [{ name: "acknowledged" }],
+      reactions: { total_count: 10 },
+      comments: 5,
+    });
+
+    const payload = {
+      action: "created",
+      issue: { number: 1 },
+    };
+
+    await action.handleIssueCommentEvent(payload);
+
+    // Should not call sendNotification because the issue is acknowledged
+    expect(action.sendNotification).not.toHaveBeenCalled();
+  });
 });

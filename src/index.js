@@ -72,7 +72,10 @@ class IssueNotificationAction {
     } else if (action === "edited" && this.notifyOnThreshold) {
       // Check if thresholds are met after edit
       const updatedIssue = await this.getIssueWithDetails(issue.number);
-      if (this.shouldNotifyForThresholds(updatedIssue)) {
+      if (
+        this.shouldNotifyForIssue(updatedIssue) &&
+        this.shouldNotifyForThresholds(updatedIssue)
+      ) {
         await this.sendNotification(updatedIssue, "threshold_reached");
       }
     }
@@ -86,7 +89,10 @@ class IssueNotificationAction {
     if (action === "created") {
       // Check if comment threshold is now met
       const updatedIssue = await this.getIssueWithDetails(issue.number);
-      if (this.shouldNotifyForThresholds(updatedIssue)) {
+      if (
+        this.shouldNotifyForIssue(updatedIssue) &&
+        this.shouldNotifyForThresholds(updatedIssue)
+      ) {
         await this.sendNotification(updatedIssue, "threshold_reached");
       }
     }
@@ -170,7 +176,9 @@ class IssueNotificationAction {
   shouldNotifyForIssue(issue) {
     // Skip if issues_only is true and issue is a pull request
     if (this.issuesOnly && issue.pull_request) {
-      core.info(`Issue ${issue.number} is a pull request, skipping due to issues_only setting`);
+      core.info(
+        `Issue ${issue.number} is a pull request, skipping due to issues_only setting`
+      );
       return false;
     }
 
