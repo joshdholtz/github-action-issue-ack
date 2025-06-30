@@ -23,6 +23,12 @@ inputs:
     description: "Comma-separated labels that should exclude the issue"
     required: false
     default: ""
+  
+  # Only check issues, not pull requests
+  issues_only:
+    description: "Only check issues, not pull requests"
+    required: false
+    default: "true"
 
   # Thresholds
   reaction_threshold:

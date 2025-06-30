@@ -25,6 +25,7 @@ class IssueNotificationAction {
       .split(",")
       .map((l) => l.trim())
       .filter((l) => l);
+    this.issuesOnly = core.getInput("issues_only") === "true";
     this.reactionThreshold = parseInt(core.getInput("reaction_threshold")) || 5;
     this.commentThreshold = parseInt(core.getInput("comment_threshold")) || 3;
     this.messageTemplate = core.getInput("message_template");
@@ -167,6 +168,12 @@ class IssueNotificationAction {
   }
 
   shouldNotifyForIssue(issue) {
+    // Skip if issues_only is true and issue is a pull request
+    if (this.issuesOnly && issue.pull_request) {
+      core.info(`Issue ${issue.number} is a pull request, skipping due to issues_only setting`);
+      return false;
+    }
+
     // Check title keywords
     if (this.titleKeywords.length > 0) {
       const titleLower = issue.title.toLowerCase();
