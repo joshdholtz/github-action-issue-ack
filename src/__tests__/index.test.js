@@ -19,6 +19,7 @@ describe("IssueNotificationAction", () => {
         title_keywords: "",
         required_labels: "",
         excluded_labels: "",
+        issues_only: "false",
         reaction_threshold: "5",
         comment_threshold: "3",
         message_template: "Test message {title}",
@@ -129,5 +130,83 @@ describe("IssueNotificationAction", () => {
     };
 
     expect(action.shouldNotifyForThresholds(issue)).toBe(true);
+  });
+
+  test("should notify for regular issues when issues_only is false", () => {
+    core.getInput.mockImplementation((name) => {
+      if (name === "issues_only") return "false";
+      return "";
+    });
+
+    const { IssueNotificationAction } = require("../index");
+    const action = new IssueNotificationAction();
+
+    const issue = {
+      title: "Test issue",
+      labels: [],
+      reactions: { total_count: 20 },
+      comments: 2,
+    };
+
+    expect(action.shouldNotifyForIssue(issue)).toBe(true);
+  });
+
+  test("should notify for pull requests when issues_only is false", () => {
+    core.getInput.mockImplementation((name) => {
+      if (name === "issues_only") return "false";
+      return "";
+    });
+
+    const { IssueNotificationAction } = require("../index");
+    const action = new IssueNotificationAction();
+
+    const pullRequest = {
+      title: "Test pull request",
+      labels: [],
+      reactions: { total_count: 20 },
+      comments: 2,
+      pull_request: {}, // This indicates it's a pull request
+    };
+
+    expect(action.shouldNotifyForIssue(pullRequest)).toBe(true);
+  });
+
+  test("should notify for regular issues when issues_only is true", () => {
+    core.getInput.mockImplementation((name) => {
+      if (name === "issues_only") return "true";
+      return "";
+    });
+
+    const { IssueNotificationAction } = require("../index");
+    const action = new IssueNotificationAction();
+
+    const issue = {
+      title: "Test issue",
+      labels: [],
+      reactions: { total_count: 20 },
+      comments: 2,
+    };
+
+    expect(action.shouldNotifyForIssue(issue)).toBe(true);
+  });
+
+  test("should not notify for pull requests when issues_only is true", () => {
+    core.getInput.mockImplementation((name) => {
+      if (name === "issues_only") return "true";
+      return "";
+    });
+
+    const { IssueNotificationAction } = require("../index");
+    const action = new IssueNotificationAction();
+
+    const pullRequest = {
+      title: "Test pull request",
+      labels: [],
+      reactions: { total_count: 20 },
+      comments: 20,
+      pull_request: {}, // This indicates it's a pull request
+    };
+
+    expect(action.shouldNotifyForIssue(pullRequest)).toBe(false);
   });
 });
